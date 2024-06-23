@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  fastapi-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/app/src
+      - ./startup.sh:/app/startup.sh
+    command: /bin/bash -c "./startup.sh & uvicorn src.youtubeDownloader:app --host 0.0.0.0 --port 80"
+
+  pytorch-service:  
+    build:
+        context: .
+        dockerfile: Dockerfile.pytorch
+    platform: linux/amd64
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+    command: jupyter notebook --ip='*' --port=8888 --no-browser --allow-root
+
+  python-service:
+    image: python:3.8-slim
+    build:
+      context: .
+      dockerfile: Dockerfile.frames
+    ports:
+      - "90:90"
+    volumes:
+      - ./src:/app/src
+    command: python ./src/frames.py
